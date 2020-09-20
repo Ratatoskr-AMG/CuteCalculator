@@ -1,4 +1,3 @@
-Откуда я знаю, что поступаю правильно? Я не знаю, но я надеюсь =)
 
 Open: Cute Calculator: minSdkVersion 16
 
