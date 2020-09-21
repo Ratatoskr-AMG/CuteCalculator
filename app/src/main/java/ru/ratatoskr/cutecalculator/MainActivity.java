@@ -1,37 +1,43 @@
 package ru.ratatoskr.cutecalculator;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.content.Context;
+import android.app.ActionBar;
 import android.os.Bundle;
-import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
 
 public class MainActivity extends AppCompatActivity {
+    public String TAG = "TOHA";
 
-    protected LayoutInflater cuteInflater = getLayoutInflater();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //View button = cuteInflater.inflate(R.layout.button, null, false);
-        //ConstraintLayout cuteWrapper = (ConstraintLayout) findViewById(R.id.linLayout);
-    }
 
-    private CuteButtonFactory bFactory;
+        LayoutInflater inflater = getLayoutInflater();
+        LinearLayout cuteWrapper = findViewById(R.id.wrapper);
+        for (int i = 1; i < 10; i++) {
 
-    public class CuteButtonFactory implements LayoutInflater.Factory{
-        @Nullable
-        @Override
-        public View onCreateView(@NonNull String s, @NonNull Context context, @NonNull AttributeSet attributeSet) {
-            return null;
+            View cuteButton = inflater.inflate(R.layout.button, cuteWrapper, false);
+            TextView cuteButtonText = cuteButton.findViewById(R.id.buttontext);
+            cuteButtonText.setText("asd" + i);
+            cuteWrapper.addView(cuteButton);
         }
+
+        /*
+        ViewGroup.LayoutParams lp = cuteButton.getLayoutParams();
+        Log.v(TAG, "Class of view: " + cuteButton.getClass().toString());
+        Log.v(TAG, "LayoutParams of view is null: " + (lp == null));
+        Log.v(TAG, "Text of view: " + ((TextView) cuteButton).getText());
+        */
     }
+
 }
 
