@@ -7,65 +7,170 @@ import android.widget.TextView;
 
 public class Display {
 
-    protected String current = "0";
-    protected float x = 0;
-    protected float y = 0;
-    protected String currOperation = "multi";
+    protected String currentD = "0";
+    protected String currentH = "";
+    protected float x;
+    protected float y;
+    protected String currentX = "NULL";
+    protected String currentY = "NULL";
+    protected String currOperation = "NULL";
+    protected String inputState = "WAIT";
+
+    public void clear() {
+
+        currentD = "0";
+        currentH = "";
+        x = 0;
+        y = 0;
+        currentX = "NULL";
+        currentY = "NULL";
+        currOperation = "NULL";
+
+    }
 
     public void operandClick(String o) {
 
-        if (current == "0") {
+        if (currentD == "0" || inputState == "WAIT") {
 
-            current = o;
-            y=1;
+            currentD = o;
+
 
         } else {
 
-            StringBuilder builder = new StringBuilder();
-            builder.append(current);
-            builder.append(o);
-            current = builder.toString();
+            if (currOperation != "NULL" && currentX != "NULL" && currentY == "NULL") {
+                currentD = o;
+                currentY = "NOTNULL";
+            } else {
+
+                StringBuilder currentBuilder = new StringBuilder();
+                currentBuilder.append(currentD);
+                currentBuilder.append(o);
+                currentD = currentBuilder.toString();
+            }
 
         }
 
+        inputState = "HOLD";
+
     }
 
-    public void operationClick(String operation){
+    public void operationClick(String o) {
 
-        currOperation = operation;
-        getResult();
-    }
+        StringBuilder historyBuilder = new StringBuilder();
+        currOperation = o;
 
-    public void getResult(){
+        if (currentH != "") {
+            historyBuilder.append(currentH);
+            if (inputState == "WAIT") {
+                historyBuilder.append(currentD);
+                historyBuilder.setLength(historyBuilder.length() - 3);
+            }
+        }
 
-        float number = 0;
-
-        switch(currOperation){
+        switch (o) {
             case "multi":
-                number = x*y;
+                historyBuilder.append(" * ");
                 break;
             case "plus":
-                number = x+y;
+                historyBuilder.append(" + ");
                 break;
             case "minus":
-                number = x-y;
+                historyBuilder.append(" - ");
                 break;
             case "divide":
-                number = x/y;
+                historyBuilder.append(" / ");
+                break;
+            default:
+                historyBuilder.append(" Unsupported operation " + currOperation);
                 break;
         }
 
-        current=String.valueOf(number);
+        if (inputState != "WAIT") {
+
+            if (currentX != "NULL" && currentY == "NULL") {
+                y = Float.parseFloat(currentD);
+                currentY = "NOTNULL";
+                currOperation = o;
+                calculate();
+                setResult();
+            }
+
+            if (currentX == "NULL" && currentY == "NULL") {
+                x = Float.parseFloat(currentD);
+                currentX = "NOTNULL";
+            }
+
+        }
+
+        currentH = historyBuilder.toString();
+        inputState = "WAIT";
 
     }
 
+    public void divide() {
+        int isFloat = currentD.indexOf(".");
+        Log.v("TOHA", Integer.toString(isFloat));
 
-    public void show(TextView display) {
+        if (isFloat < 0) {
+            StringBuilder historyBuilder = new StringBuilder();
+            historyBuilder.append(currentD);
+            historyBuilder.append(".");
+            currentD = historyBuilder.toString();
+        }
+    }
 
-        display.setText(current);
-        Log.v("TOHA", "setted");
+    public Float calculate() {
+
+        float calcValue = 0;
+
+        switch (currOperation) {
+            case "multi":
+                calcValue = x * y;
+                Log.v("TOHA:", x + " * " + y);
+                break;
+            case "plus":
+                calcValue = x + y;
+                Log.v("TOHA:", x + " + " + y);
+                break;
+            case "minus":
+                calcValue = x - y;
+                Log.v("TOHA:", x + " - " + y);
+                break;
+            case "divide":
+                calcValue = x / y;
+                Log.v("TOHA:", x + " / " + y);
+                break;
+            default:
+                Log.v("TOHA:", "Unsupported operation");
+                break;
+        }
+
+        x = calcValue;
+        y = 0;
+        currentY = "NULL";
+
+        Log.v("TOHA:", " calcValue: " + calcValue);
+        return calcValue;
+    }
+
+    public void setResult() {
+
+        float calcValue = calculate();
+
+        if (calcValue % 1 == 0) {
+            Integer result = (int) calcValue;
+            currentD = String.valueOf(result);
+        }
+
+        currentD = String.valueOf(calcValue);
 
     }
 
-    ;
+    public void show(TextView display, TextView history) {
+
+        display.setText(currentD);
+        history.setText(currentH);
+
+    }
+
 }

@@ -13,7 +13,17 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/display"
+            android:id="@+id/cuteHistory"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/back"
+            android:text="0"
+            android:gravity="right|center_vertical"
+            android:textSize="14sp"
+            android:padding="3dp"
+            />
+        <TextView
+            android:id="@+id/cuteDisplay"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:background="@drawable/back"
@@ -24,7 +34,7 @@
             />
 
         <LinearLayout
-            android:id="@+id/wrapper"
+            android:id="@+id/cuteWrapper"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">

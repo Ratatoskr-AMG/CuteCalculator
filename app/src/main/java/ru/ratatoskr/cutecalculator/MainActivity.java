@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public String TAG = "TOHA";
@@ -30,8 +29,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         LayoutInflater inflater = getLayoutInflater();
-        LinearLayout cuteWrapper = findViewById(R.id.wrapper);
-        TextView cuteDisplay = findViewById(R.id.display);
+        LinearLayout cuteWrapper = findViewById(R.id.cuteWrapper);
+        TextView cuteDisplay = findViewById(R.id.cuteDisplay);
+        TextView cuteHistory = findViewById(R.id.cuteHistory);
 
         /* inflate cute buttons*/
         for (Map.Entry<String, String> entry : cuteButtons.entrySet()) {
@@ -52,9 +52,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             /*Log*/
             //Log.v(TAG, "key = " + key);
             //Log.v(TAG, "value = " + value);
+
+
         }
 
-        cuteDisplayDir.show(cuteDisplay);
+        cuteDisplayDir.show(cuteDisplay, cuteHistory);
     }
     /* returns buttons HasMap*/
 
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cuteButtons.put("2", "operand");
         cuteButtons.put("3", "operand");
         cuteButtons.put("0", "operand");
-        cuteButtons.put("=", "equal");
+        cuteButtons.put("=", "result");
         cuteButtons.put("-", "minus");
         cuteButtons.put("+", "plus");
         cuteButtons.put("/", "divide");
@@ -89,14 +91,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View cuteButton) {
 
         /*current*/
-        TextView cuteDisplay = findViewById(R.id.display);
+        TextView cuteDisplay = findViewById(R.id.cuteDisplay);
+        TextView cuteHistory = findViewById(R.id.cuteHistory);
         String current = cuteDisplay.getText().toString();
-        Log.v(TAG, "current:"+current);
+
 
         /* input */
-        String input = (String)cuteButton.getTag();
+        String input = (String) cuteButton.getTag();
 
         switch (input) {
+
+            case "result":
+                cuteDisplayDir.calculate();
+                cuteDisplayDir.setResult();
+                break;
+
+            case "clear":
+                cuteDisplayDir.clear();
+                break;
+
+            case "multi":
+                cuteDisplayDir.operationClick(input);
+                break;
 
             case "plus":
                 cuteDisplayDir.operationClick(input);
@@ -106,6 +122,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 cuteDisplayDir.operationClick(input);
                 break;
 
+            case "divide":
+                cuteDisplayDir.operationClick(input);
+                break;
+
+            case "divider":
+                cuteDisplayDir.divide();
+                break;
+
             case "operand":
                 TextView cuteButtonText = cuteButton.findViewById(R.id.buttontext);
                 String operand = cuteButtonText.getText().toString();
@@ -113,12 +137,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
 
-        cuteDisplayDir.show(cuteDisplay);
+        cuteDisplayDir.show(cuteDisplay, cuteHistory);
 
         /*Log*/
+        Log.v(TAG, "input:" + input);
 
-        Log.v(TAG, "operand:"+operand);
-        Log.v(TAG, "input:"+input);
     }
 
 
