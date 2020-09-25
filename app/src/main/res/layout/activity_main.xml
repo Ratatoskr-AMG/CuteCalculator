@@ -13,17 +13,17 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/cuteHistory"
+            android:id="@+id/historyTV"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/back"
-            android:text="0"
+            android:text=""
             android:gravity="right|center_vertical"
             android:textSize="14sp"
             android:padding="3dp"
             />
         <TextView
-            android:id="@+id/cuteDisplay"
+            android:id="@+id/inputTV"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:background="@drawable/back"
