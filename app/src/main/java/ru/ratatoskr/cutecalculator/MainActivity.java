@@ -16,53 +16,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
-    HashMap<Integer,cuteOperand> cuteButtons = cuteCalculator.getButtons();
     public cuteDisplay cuteDisplay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         TextView historyTV = findViewById(R.id.historyTV);
         TextView inputTV = findViewById(R.id.inputTV);
-        cuteDisplay = new cuteDisplay(historyTV,inputTV);
+        LinearLayout buttonsLL = findViewById(R.id.cuteWrapper);
 
-        /* inflate cute buttons*/
-        LayoutInflater inflater = getLayoutInflater();
-        LinearLayout cuteWrapper = findViewById(R.id.cuteWrapper);
-        for (Map.Entry<Integer,cuteOperand> entry : cuteButtons.entrySet()) {
+        cuteDisplay = new cuteDisplay(historyTV,inputTV,buttonsLL,this);
 
-            Integer cuteKey = entry.getKey();
-            cuteOperand cuteOperand = entry.getValue();
-
-            /*create cuteButton*/
-            View cuteButton = inflater.inflate(R.layout.button, null, false);
-            TextView cuteButtonText = cuteButton.findViewById(R.id.buttontext);
-            cuteButtonText.setText(cuteOperand.getName());
-
-            /*add cuteButton*/
-            cuteButton.setTag(cuteOperand);
-            cuteWrapper.addView(cuteButton);
-            cuteButton.setOnClickListener(this);
-
-
-
-        }
     }
-
-    @Override
-    public void onClick(View cuteButton) {
-
-        TextView inputTV = findViewById(R.id.inputTV);
-        cuteOperand input = (cuteOperand) cuteButton.getTag();
-        cuteDisplay.add(input,inputTV);
-        cuteDisplay.refresh();
-    }
-
 
 }
 

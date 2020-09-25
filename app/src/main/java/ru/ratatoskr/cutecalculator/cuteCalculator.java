@@ -16,8 +16,6 @@ public class cuteCalculator {
         LinkedList<cuteOperand> operationsState = (LinkedList)operations.clone();
 
         //Iterator iterator = operands.iterator();
-        Log.v("CUTE", "operandsState:size:" + operandsState.size());
-        Log.v("CUTE", "operationsState:size:" + operationsState.size());
 
         double x;
         double y;
@@ -59,8 +57,6 @@ public class cuteCalculator {
 
             }
 
-            Log.v("CUTE", "operandsState:size:" + operands.size());
-            Log.v("CUTE", "operationsState:size:" + operations.size());
 
             return x;
 
