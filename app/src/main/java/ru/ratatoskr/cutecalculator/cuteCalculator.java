@@ -1,6 +1,7 @@
 package ru.ratatoskr.cutecalculator;
 
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,69 +9,71 @@ import java.util.LinkedList;
 
 public class cuteCalculator {
 
+    static boolean readyState = true;
     public String current = "0";
+    public double savedX = 0;
+    public String savedOperation = "";
+    public TextView inputTV;
 
-    static double calculate(LinkedList<Double> operands, LinkedList<cuteOperand> operations) {
+    public void setOperation(String input) {
+        savedOperation=input;
+    }
 
-        LinkedList<Double> operandsState = (LinkedList)operands.clone();
-        LinkedList<cuteOperand> operationsState = (LinkedList)operations.clone();
+    public cuteCalculator(TextView inputTV) {
+        this.inputTV = inputTV;
+    }
 
-        //Iterator iterator = operands.iterator();
+    public void clear(){
+        readyState = true;
+        current = "0";
+        savedX = 0;
+        savedOperation = "";
+    }
 
-        double x;
-        double y;
+    public void saveX() {
+        savedX = getValueFromDisplay();
+    }
 
-        if (operandsState.size() == 1) {
+    public void saveX(double value) {
+        savedX = value;
+    }
 
-            return operandsState.peekLast();
+    public double getValueFromDisplay(){
+        CharSequence currInput = inputTV.getText();
+        StringBuilder inputed = new StringBuilder(currInput.length());
+        inputed.append(currInput);
+        return Double.parseDouble(currInput.toString());
+    }
 
-        }
-
-        if (operandsState.size() > 1) {
-
-            x = operandsState.peekFirst();
-            operandsState.pollFirst();
-
-            while (operandsState.size() > 0) {
-
-                cuteOperand curr = operationsState.peekFirst();
-                operationsState.pollFirst();
-
-                y = operandsState.peekFirst();
-                operandsState.pollFirst();
-
-                switch (curr.getName()) {
-                    case "+":
-                        x = x + y;
-                        break;
-                    case "-":
-                        x = x - y;
-                        break;
-                    case "*":
-                        x = x * y;
-                        break;
-                    case "/":
-                        x = x / y;
-                        break;
-                }
-
-
+    public double calculate() {
+        double result;
+        double current = getValueFromDisplay();
+        if(savedOperation != ""){
+            switch(savedOperation){
+                case "-":
+                    result=savedX-current;
+                    break;
+                case "+":
+                    result=savedX+current;
+                    break;
+                case "*":
+                    result=savedX*current;
+                    break;
+                case "/":
+                    result=savedX/current;
+                    break;
+                default:
+                    result=0;
             }
-
-
-            return x;
-
+        }else{
+            return current;
         }
-
-
-        return 0;
-
+        savedOperation="";
+        return result;
     }
 
     static HashMap getButtons() {
-
         HashMap<Integer,cuteOperand> cuteButtons = new HashMap<>();
-
         cuteButtons.put(0, new cuteOperand("0",0));
         cuteButtons.put(1, new cuteOperand("1",1));
         cuteButtons.put(2, new cuteOperand("2",2));
@@ -88,14 +91,7 @@ public class cuteCalculator {
         cuteButtons.put(14, new cuteOperand("/"));
         cuteButtons.put(15, new cuteOperand("*"));
         cuteButtons.put(16, new cuteOperand("."));
-
         return cuteButtons;
-
-    }
-
-    @Override
-    public String toString() {
-        return "cuteCalculator{" + "current='" + current + '}';
     }
 
 }

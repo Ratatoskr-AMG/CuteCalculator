@@ -15,112 +15,92 @@ import java.util.Stack;
 
 public class cuteDisplay implements View.OnClickListener {
 
-    TextView historyTV;
     TextView inputTV;
     LinearLayout buttonsLL;
-    double current = 0;
-    boolean operandInputStartsNewOperand = true;
-    boolean operationReceivedAtLast=false;
-    LinkedList<cuteOperand> inputs = new LinkedList<>();
-    LinkedList<Double> operands = new LinkedList<>();
-    LinkedList<cuteOperand> operations = new LinkedList<>();
+    String currentStr = "0";
+    String currentHistory = "";
+    boolean dot = false;
+    boolean isWaitinforInput = true;
+    cuteCalculator myCalculator;
 
-    public cuteDisplay(TextView historyTV, TextView inputTV, LinearLayout buttonsLL, Context Context) {
+    public cuteDisplay(TextView inputTV, LinearLayout buttonsLL, Context Context) {
 
-        this.historyTV = historyTV;
         this.inputTV = inputTV;
         this.buttonsLL = buttonsLL;
 
-        /*construct keyboard*/
+        myCalculator = new cuteCalculator(inputTV);
         HashMap<Integer, cuteOperand> cuteButtons = cuteCalculator.getButtons();
         LayoutInflater inflater = (LayoutInflater) Context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         for (Map.Entry<Integer, cuteOperand> entry : cuteButtons.entrySet()) {
-
-            Integer cuteKey = entry.getKey();
             cuteOperand cuteOperand = entry.getValue();
-
-            /*create cuteButton*/
             View cuteButton = inflater.inflate(R.layout.button, null, false);
             TextView cuteButtonText = cuteButton.findViewById(R.id.buttontext);
             cuteButtonText.setText(cuteOperand.getName());
-
-            /*add cuteButton*/
             cuteButton.setTag(cuteOperand);
             this.buttonsLL.addView(cuteButton);
             cuteButton.setOnClickListener(this);
-
         }
-
         refresh();
-
     }
 
-    public void add(cuteOperand input) {
-
-        /*введена не цифра и не точка*/
-        if (input.getValue() == 0 && input.getName() != "0" && input.getName()!=".") {
-            /*операция*/
-            operationReceivedAtLast=false;
-            switch (input.getName()) {
+    public void receive(cuteOperand input, cuteCalculator calculator) {
+        if (input.getValue() == 0 && input.getName() != "0" && input.getName() != ".") {
+            String operationName = input.getName();
+            switch (operationName) {
                 case "C":
-                    operands.clear();
-                    operations.clear();
-                    current = 0;
+                    currentStr = convertDigitToString(0);
+                    myCalculator.clear();
                     break;
                 case "=":
-                    operands.addLast(current);
-                    current = cuteCalculator.calculate(operands, operations);
+                    currentStr = convertDigitToString(myCalculator.calculate());
+                    myCalculator.readyState = true;
                     break;
                 default:
-                    operandInputStartsNewOperand = true;
-                    if(operationReceivedAtLast){
-                        operations.removeLast();
-                        operations.addLast(input);
+                    if(myCalculator.savedOperation=="") {
+                        myCalculator.setOperation(operationName);
+                        myCalculator.saveX();
                     }else{
-                        operands.addLast(current);
-                        operations.addLast(input);
-                        current = cuteCalculator.calculate(operands, operations);
-                        operands.addLast(current);
-                        operationReceivedAtLast = true;
+                        if(myCalculator.savedX!=0){
+                            double currResult=myCalculator.calculate();
+                            currentStr = convertDigitToString(currResult);
+                            myCalculator.setOperation(operationName);
+                            myCalculator.saveX(currResult);
+                        }
                     }
+                    myCalculator.readyState = true;
                     break;
             }
-
-        }
-        /*введена цифра*/
-        else {
-            operationReceivedAtLast = false;
-            CharSequence currInput = inputTV.getText();
-            StringBuilder sb = new StringBuilder(currInput.length());
-            sb.append(currInput);
-            sb.append(input.getName());
-            if (operandInputStartsNewOperand == true) {
-                current = input.getValue();
-                operandInputStartsNewOperand = false;
+        } else {
+            if (input.getName() == ".") {
+                dot = true;
             } else {
-
-                String curr = convertDigitToString(current);
-                String add = convertDigitToString(input.getValue());
-
-                StringBuilder currentString = new StringBuilder();
-                currentString.append(curr);
-                currentString.append(add);
-                current = Double.parseDouble(currentString.toString());
-
+                dot = false;
             }
-
-            //
-
+            if (myCalculator.readyState) {
+                if (input.getName() == ".") {
+                    currentStr = "0.";
+                } else {
+                    currentStr = convertDigitToString(Double.parseDouble(input.getName()));
+                }
+                myCalculator.readyState = false;
+            } else {
+                CharSequence currInput = inputTV.getText();
+                StringBuilder sb = new StringBuilder(currInput.length());
+                sb.append(currInput);
+                sb.append(input.getName());
+                currentStr = convertDigitToString(Double.parseDouble(sb.toString()));
+            }
+            isWaitinforInput = false;
         }
-
     }
 
     @Override
-    public String toString() {
-        return "cuteDisplay{" + "current='" + current + '}';
+    public void onClick(View cuteButton) {
+        cuteOperand input = (cuteOperand) cuteButton.getTag();
+        receive(input, myCalculator);
+        refresh();
     }
 
-    /*Убираем точку и нули, если число - целое*/
     public String convertDigitToString(double operand) {
         String resultString;
         if (operand % 1 == 0) {
@@ -129,94 +109,13 @@ public class cuteDisplay implements View.OnClickListener {
         } else {
             resultString = String.valueOf(operand);
         }
-        return resultString;
-    }
-
-    //Собираем историю операции + операнды
-    public String historyToString() {
-        LinkedList<Double> operands_c = (LinkedList) operands.clone();
-        LinkedList<cuteOperand> operations_c = (LinkedList) operations.clone();
-
-        Log.v("CUTE","operands_c.size()="+operands_c.size());
-        Log.v("CUTE","operations_c.size()="+operations_c.size());
-
-        if (operands_c.size() == 0) {
-            return "";
-        }else{
-            StringBuilder history = new StringBuilder();
-            if(operations_c.size() == 0){
-                double x = operands_c.peekFirst();
-                Log.v("CUTE","history.append: "+x);
-                history.append(x);
-            }else{
-                for(int i = 0; i < operands_c.size(); i++) {
-                    double operand = operands_c.peekFirst();
-                    cuteOperand operation = operations_c.peekFirst();
-                    operands_c.pollFirst();
-                    operations_c.pollFirst();
-                    history.append(convertDigitToString(operand));
-                    history.append(operation.getName());
-                    Log.v("CUTE"," history.append(convertDigitToString(operand)): "+ convertDigitToString(operand));
-                    Log.v("CUTE","h history.append(operation.getName()):  "+operation.getName());
-                }
-            }
-            String result = history.toString();
-            return result;
-        }
-
-        /*
-        if (operands_c.size() == 1) {
-            double hOperand = operands_c.peekLast();
-            String hOperation = String.valueOf(operations_c.peekFirst().getName());
-            result = convertDigitToString(hOperand) + hOperation;
-
-        } else {
-
-            StringBuilder historyBuilder = new StringBuilder();
-
-            while (operands_c.size() > 0) {
-
-                cuteOperand cOperation = operations_c.peekFirst();
-                operands_c.pollFirst();
-                operations_c.pollFirst();
-
-                historyBuilder.append(convertDigitToString(x));
-                historyBuilder.append(cOperation.getName());
-
-            }
-
-            result = historyBuilder.toString();
-            }
-          */
-        /*StringBuilder historyString = new StringBuilder();
-
-        Iterator iterator = history.iterator();
-
-        while (iterator.hasNext()) {
-
-            Object value = iterator.next();
-            cuteOperand cuteOperand = (cuteOperand) value;
-            String name = cuteOperand.getName();
-            historyString.append(name);
-
-        }
-
-        return historyString.toString();
-        */
-
-    }
-
-    @Override
-    public void onClick(View cuteButton) {
-        cuteOperand input = (cuteOperand) cuteButton.getTag();
-        add(input);
-        refresh();
+        if (dot)
+            return resultString + ".";
+        else
+            return resultString;
     }
 
     public void refresh() {
-
-        historyTV.setText(historyToString());
-        inputTV.setText(convertDigitToString(current));
-
+        inputTV.setText(currentStr);
     }
 }

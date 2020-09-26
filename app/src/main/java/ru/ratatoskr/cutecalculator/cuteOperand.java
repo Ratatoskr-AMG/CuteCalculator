@@ -41,12 +41,4 @@ public class cuteOperand {
         this.value = value;
         this.type = "operand";
     }
-
-    @Override
-    public String toString() {
-        return "cuteOperand{" +
-                "name='" + name + '\'' +
-                ", value=" + value +
-                '}';
-    }
 }
